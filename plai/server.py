@@ -7,9 +7,8 @@ import threading
 
 import numpy as np
 
-from base import Room, rulesets, Player, RandomPlayer
-
-from network_client import NetworkClient, makeCommand
+from plai.base import Room, rulesets, Player, RandomPlayer
+from plai.network_client import NetworkClient, makeCommand
 
 connection_map = {}
 

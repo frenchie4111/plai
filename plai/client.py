@@ -1,17 +1,14 @@
 import asynchat
 import asyncore
 import socket
-import threading
-
 import pickle
-
-from base import AbstractRoom, Player
 import sys
 import time
 
 import numpy as np
 
-from network_client import NetworkClient, makeCommand
+from plai.base import AbstractRoom, Player
+from plai.network_client import NetworkClient, makeCommand
 
 class RemoteRoomClient( AbstractRoom ):
     def __init__( self, api_key, host='localhost', port=4200 ):
@@ -85,11 +82,3 @@ if __name__ == '__main__':
     player = KeyboardPlayer()
 
     player.join( room )
-
-# comm = threading.Thread(target=asyncore.loop)
-# comm.daemon = True
-# comm.start()
-#
-# while True:
-#     msg = input('> ')
-#     client.push( ( msg + '\n' ).encode( 'utf-8' ) )
