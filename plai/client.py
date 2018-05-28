@@ -77,9 +77,10 @@ class KeyboardPlayer( Player ):
 
 if __name__ == '__main__':
     if len( sys.argv ) != 2:
-        print( 'usage: python -m plai.client <api key>' )
+        print( 'usage: python -m plai.client <host>' )
+        sys.exit( 1 )
 
-    room = RemoteRoomClient( sys.argv[ 1 ] )
+    room = RemoteRoomClient( 'api keys dont matter yet', host=sys.argv[ 1 ] )
 
     player = KeyboardPlayer()
 
