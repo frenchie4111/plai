@@ -8,5 +8,9 @@ setup(
     description='Plai Server/Client repo',
     author='Mike Lyons',
     author_email='mdl0394@gmail.com',
-    packages=find_packages( exclude=[ 'tmp' ] )
+    packages=find_packages( exclude=[ 'tmp' ] ),
+    install_requires=[
+        'numpy',
+        'gym'
+    ]
 )
