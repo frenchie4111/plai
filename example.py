@@ -1,17 +1,13 @@
-from base import Player
+from plai.base import Player
+from plai.client import RemoteRoomClient
 
-def CustomPlayer( Player ):
+class CustomPlayer( Player ):
     def move( self, obs ):
-        action = self.game.ruleset.action_space.sample()
-        while not self.game.ruleset.isValidAction( obs, action ):
-            action = self.game.ruleset.action_space.sample()
+        action = self.ruleset.action_space.sample()
+        while not self.ruleset.isValidAction( obs, action ):
+            action = self.ruleset.action_space.sample()
         return action
 
-room = RemoteRoomClient()
-
-while True:
-    player = CustomPlayer()
-    won = player.join( room )
-
-    if won:
-        print( 'I won!' )
+room = RemoteRoomClient( 'apikey', host='plai.mikelyons.org' )
+player = CustomPlayer()
+player.join( room )

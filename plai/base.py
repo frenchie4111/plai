@@ -127,6 +127,7 @@ class Game():
         if player_id is None:
             player_id = len( self.players ) + 1
 
+        player.setRuleset( self.ruleset )
         self.players.append( ( player_id, player ) ) # Players is ( player_id, player instance )
 
         if len( self.players ) == self.ruleset.player_count:
@@ -179,6 +180,10 @@ class Game():
             current_player_i %= len( self.players )
 
 class AsyncGame( Game ):
+    def addPlayer( self, player ):
+        super().addPlayer( player )
+        player.game = self # Give the player a game instance so they can call move()
+
     def play( self ):
         self.state = self.ruleset.getIntialState()
         self._current_player_i = np.random.randint( 0, len( self.players ) )
@@ -251,9 +256,11 @@ class Player():
 
     room = None
 
+    def setRuleset( self, ruleset ):
+        self.ruleset = ruleset
+
     def join( self, room ):
-        self.room = room
-        self.room.join( self )
+        room.join( self )
 
     def gameOver( self, winner, tie=False ):
         pass
@@ -266,11 +273,14 @@ class Player():
         pass
 
 class RandomPlayer( Player ):
-    game = None
+    def gameOver( self, winner, tie=False ):
+        if winner:
+            print( 'I won' )
+
     def move( self, obs ):
-        action = self.room.game.ruleset.action_space.sample()
-        while not self.room.game.ruleset.isValidAction( obs, action ):
-            action = self.room.game.ruleset.action_space.sample()
+        action = self.ruleset.action_space.sample()
+        while not self.ruleset.isValidAction( obs, action ):
+            action = self.ruleset.action_space.sample()
         return action
 
 if __name__ == '__main__':

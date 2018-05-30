@@ -7,22 +7,24 @@ import time
 
 import numpy as np
 
-from plai.base import AbstractRoom, Player
+from plai.base import AbstractRoom, Player, rulesets
 from plai.network_client import NetworkClient, makeCommand
 
 class RemoteRoomClient( AbstractRoom ):
-    def __init__( self, api_key, host='localhost', port=4200 ):
+    def __init__( self, api_key, gamename='tictactoe', host='localhost', port=4200 ):
         super( RemoteRoomClient, self ).__init__()
 
         self.api_key = api_key
+        self.gamename = gamename
         self.host = host
         self.port = port
 
     def connect( self ):
         self.client = NetworkClient( self.host, self.port )
         self.client.onCommand = self.onCommand
-        # self.client.push( makeCommand( 'join' ) )
+        self.client.push( makeCommand( 'gamename', self.gamename ) )
         print( 'Connected, waiting for game...' )
+        self.player.setRuleset( rulesets[ self.gamename ] )
         asyncore.loop()
 
     def join( self, player ):
@@ -31,14 +33,14 @@ class RemoteRoomClient( AbstractRoom ):
 
     def onCommand( self, command ):
         if command[ 'name' ] == 'move':
-            action = player.move( command[ 'data' ] )
+            action = self.player.move( command[ 'data' ] )
             self.client.push( makeCommand( 'action', action ) )
 
         if command[ 'name' ] == 'gameOver':
-            player.gameOver( *command[ 'data' ] )
+            self.player.gameOver( *command[ 'data' ] )
         
         if command[ 'name' ] == 'onMove':
-            player.onMove( *command[ 'data' ] )
+            self.player.onMove( *command[ 'data' ] )
 
 class KeyboardPlayer( Player ):
     def printBoard( self, obs ):
@@ -55,6 +57,7 @@ class KeyboardPlayer( Player ):
             action = input( 'Make your move > ' )
             if action == '?':
                 print( 'Printing Help:' )
+                print( '' )
                 self.printBoard( np.array( range( 9 ) ).reshape( 3, 3 ) )
                 continue
             break
@@ -70,15 +73,18 @@ class KeyboardPlayer( Player ):
         else:
             print( 'You Lose :(' )
         print( 'Waiting for next game to start...' )
-        
 
 if __name__ == '__main__':
     if len( sys.argv ) != 2:
         print( 'usage: python -m plai.client <host>' )
         sys.exit( 1 )
 
-    room = RemoteRoomClient( 'api keys dont matter yet', host=sys.argv[ 1 ] )
+    room = None
+    try:
+        room = RemoteRoomClient( 'api keys dont matter yet', host=sys.argv[ 1 ] )
 
-    player = KeyboardPlayer()
+        player = KeyboardPlayer()
 
-    player.join( room )
+        player.join( room )
+    except KeyboardInterrupt:
+        room.client.close()
